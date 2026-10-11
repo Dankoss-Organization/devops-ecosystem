@@ -1,0 +1,28 @@
+name: Infrastructure Lint Template
+
+on:
+  workflow_call:
+
+jobs:
+  lint-infra:
+    name: Lint YAML, JSON & Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Lint GitHub Actions (Actionlint)
+        run: |
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
+
+      - name: Lint YAML files (Yamllint)
+        run: |
+          pip install yamllint
+          # Використовуємо базові правила, але вимикаємо жорстке обмеження довжини рядка
+          yamllint . -d "{extends: relaxed, rules: {line-length: disable}}"
+
+      - name: Lint JSON & Markdown (Prettier)
+        run: |
+          npm install -g prettier
+          prettier --check "**/*.{json,md}"
